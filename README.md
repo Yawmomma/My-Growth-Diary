@@ -29,6 +29,6 @@ No frameworks, no dependencies, no internet required.
 
 <img width="323" height="608" alt="Screenshot 2026-06-25 192616" src="https://github.com/user-attachments/assets/32a335a7-2326-4fb2-88c9-aa71022524e8" />
 
-<img width="326" height="610" alt="image" src="https://github.com/user-attachments/assets/d2bc4fb7-4b8f-4977-94a8-3d9cb71fcbe2" />
+<img width="323" height="609" alt="image" src="https://github.com/user-attachments/assets/24d8a78b-ff55-45e5-afc3-d767e8eb2656" />
 
 <img width="325" height="608" alt="image" src="https://github.com/user-attachments/assets/d49deb1f-1417-4ba0-9241-564f85485853" />
