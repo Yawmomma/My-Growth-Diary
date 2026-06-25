@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Growth">
+<meta name="theme-color" content="#FAF7F2">
+<title>My Growth Booklet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+  :root {
+    --cream: #FAF7F2;
+    --parchment: #F2EDE4;
+    --blush: #E8C4B8;
+    --rose: #C9897A;
+    --deep-rose: #A86E61;
+    --sage: #9AAF9A;
+    --deep-sage: #6B8C6B;
+    --gold: #C9A96E;
+    --purple: #8B7BAF;
+    --grey: #8C8480;
+    --light-grey: #C0BAB4;
+    --ink: #2C2825;
+    --soft-ink: #4A4440;
+    --midnight: #2A2330;
+    --white: #FFFEF9;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  /* ══ APP SHELL ══ */
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    height: 100dvh;
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--cream);
+    position: relative;
+    box-shadow: 0 0 40px rgba(0,0,0,0.12);
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--midnight);
+    color: var(--cream);
+    padding: 14px 20px 12px;
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    color: var(--cream);
+  }
+
+  .header-subtitle {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-top: 1px;
+  }
+
+  .header-ornament {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    opacity: 0.5;
+  }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex;
+    background: var(--white);
+    border-bottom: 1px solid var(--blush);
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 4px 9px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.18s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .tab-btn .tab-icon { font-size: 1rem; }
+  .tab-btn.active { color: var(--rose); border-bottom-color: var(--rose); }
+
+  /* ── SCROLL AREA ── */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 16px calc(16px + var(--safe-bottom));
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── SECTION TITLE ── */
+  .section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .section-sub {
+    font-size: 0.72rem;
+    color: var(--grey);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* ── ADD BUTTON (FAB) ── */
+  .fab {
+    position: fixed;
+    bottom: calc(72px + var(--safe-bottom));
+    right: calc(50% - 240px + 16px);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--rose);
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(201,137,122,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, background 0.15s;
+    z-index: 10;
+  }
+  .fab:active { transform: scale(0.93); background: var(--deep-rose); }
+  @media (max-width: 480px) { .fab { right: 16px; } }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,35,48,0.55);
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal-sheet {
+    background: var(--white);
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom));
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--blush);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    border: 1px solid var(--blush);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.18s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus { border-color: var(--rose); }
+  .field textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .btn-save {
+    width: 100%;
+    padding: 13px;
+    background: var(--rose);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s;
+    margin-top: 4px;
+  }
+  .btn-save:active { background: var(--deep-rose); }
+
+  .btn-cancel {
+    width: 100%;
+    padding: 11px;
+    background: transparent;
+    color: var(--grey);
+    border: 1px solid var(--blush);
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    position: relative;
+  }
+
+  .card-accent {
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+
+  .card-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 4px;
+  }
+
+  .card-from {
+    font-size: 0.72rem;
+    color: var(--grey);
+    margin-bottom: 7px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .card-date {
+    font-size: 0.65rem;
+    color: var(--light-grey);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--blush);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .card-delete:active { color: var(--rose); }
+
+  /* Discovery type colours */
+  .type-insight { color: var(--deep-sage); }
+  .type-pattern { color: var(--rose); }
+  .type-trigger { color: var(--purple); }
+  .type-win { color: var(--gold); }
+  .accent-insight { background: var(--deep-sage); }
+  .accent-pattern { background: var(--rose); }
+  .accent-trigger { background: var(--purple); }
+  .accent-win { background: var(--gold); }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--light-grey);
+  }
+  .empty-icon { font-size: 2.2rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; line-height: 1.6; }
+
+  /* ── WEEKLY ── */
+  .weekly-q {
+    margin-bottom: 14px;
+  }
+  .weekly-q label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--grey);
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  .weekly-q textarea {
+    width: 100%;
+    border: 1px solid var(--blush);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.92rem;
+    color: var(--ink);
+    background: var(--cream);
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.5;
+    transition: border-color 0.18s;
+  }
+  .weekly-q textarea:focus { border-color: var(--deep-sage); }
+
+  .btn-save-weekly {
+    width: 100%;
+    padding: 13px;
+    background: var(--deep-sage);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s;
+    margin-top: 4px;
+    margin-bottom: 20px;
+  }
+  .btn-save-weekly:active { background: #5A7A5A; }
+
+  .weekly-history-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    border-left: 3px solid var(--gold);
+    position: relative;
+  }
+
+  .weekly-history-date {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .weekly-history-q { margin-bottom: 8px; }
+  .weekly-history-q-label { font-size: 0.65rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  .weekly-history-q-text { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; line-height: 1.55; color: var(--ink); font-weight: 400; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: calc(80px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--midnight);
+    color: var(--cream);
+    padding: 9px 20px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 100;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── INSTALL BANNER ── */
+  .install-banner {
+    background: var(--midnight);
+    color: var(--cream);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+  .install-banner.hidden { display: none; }
+  .install-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .install-text { flex: 1; }
+  .install-text strong { color: var(--gold); }
+  .install-close { background: none; border: none; color: var(--light-grey); cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-pill {
+    flex: 1;
+    background: var(--white);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Install hint banner (iOS) -->
+  <div class="install-banner" id="install-banner">
+    <div class="install-icon">📲</div>
+    <div class="install-text"><strong>Save to your phone:</strong> tap Share then "Add to Home Screen"</div>
+    <button class="install-close" onclick="dismissInstall()">×</button>
+  </div>
+
+  <!-- Header -->
+  <div class="app-header">
+    <div>
+      <div class="header-title">My Growth Booklet</div>
+      <div class="header-subtitle">Personal · Private · Yours</div>
+    </div>
+    <div class="header-ornament">✦ ◇ ✦</div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('compliments',this)">
+      <span class="tab-icon">✦</span>Compliments
+    </button>
+    <button class="tab-btn" onclick="switchTab('discoveries',this)">
+      <span class="tab-icon">◇</span>Discoveries
+    </button>
+    <button class="tab-btn" onclick="switchTab('weekly',this)">
+      <span class="tab-icon">◎</span>Weekly
+    </button>
+  </div>
+
+  <!-- Scroll area -->
+  <div class="scroll-area" id="scroll-area">
+
+    <!-- COMPLIMENTS VIEW -->
+    <div class="view active" id="view-compliments">
+      <div class="stats-bar" id="compliments-stats"></div>
+      <div id="compliments-list"></div>
+    </div>
+
+    <!-- DISCOVERIES VIEW -->
+    <div class="view" id="view-discoveries">
+      <div id="discoveries-list"></div>
+    </div>
+
+    <!-- WEEKLY VIEW -->
+    <div class="view" id="view-weekly">
+      <div class="section-heading">Weekly Check-in</div>
+      <div class="section-sub">Honest reflection · No wrong answers</div>
+
+      <div class="weekly-q"><label>What triggered a pattern this week?</label><textarea id="w1" placeholder="Describe what happened…"></textarea></div>
+      <div class="weekly-q"><label>Did I catch it before, during, or after?</label><textarea id="w2" placeholder="Be honest — there's no wrong answer…"></textarea></div>
+      <div class="weekly-q"><label>What did I do differently, even slightly?</label><textarea id="w3" placeholder="Even a tiny pause counts…"></textarea></div>
+      <div class="weekly-q"><label>Whose voice did I hear most this week?</label><textarea id="w4" placeholder="Mum, Dad, Sam, my own new voice…"></textarea></div>
+      <div class="weekly-q"><label>One thing I want to try differently next week</label><textarea id="w5" placeholder="Keep it small and specific…"></textarea></div>
+
+      <button class="btn-save-weekly" onclick="saveWeekly()">Save This Week's Check-in</button>
+
+      <div id="weekly-history"></div>
+    </div>
+
+  </div><!-- end scroll-area -->
+
+  <!-- FAB (hidden on weekly tab) -->
+  <button class="fab" id="fab" onclick="openModal()">+</button>
+
+</div><!-- end app -->
+
+<!-- COMPLIMENT MODAL -->
+<div class="modal-overlay" id="modal-compliment">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add a compliment</div>
+    <div class="field-row">
+      <div class="field"><label>From</label><input type="text" id="c-from" placeholder="e.g. Sam…"></div>
+      <div class="field"><label>Date</label><input type="date" id="c-date"></div>
+    </div>
+    <div class="field"><label>The compliment</label><textarea id="c-text" placeholder="Write it exactly as it was said, or as close as you remember…"></textarea></div>
+    <button class="btn-save" onclick="saveCompliment()">Save Compliment</button>
+    <button class="btn-cancel" onclick="closeModal('modal-compliment')">Cancel</button>
+  </div>
+</div>
+
+<!-- DISCOVERY MODAL -->
+<div class="modal-overlay" id="modal-discovery">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Record a discovery</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Type</label>
+        <select id="d-type">
+          <option value="insight">Insight</option>
+          <option value="pattern">Pattern noticed</option>
+          <option value="trigger">Trigger identified</option>
+          <option value="win">Win</option>
+        </select>
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="d-date"></div>
+    </div>
+    <div class="field"><label>What I discovered</label><textarea id="d-text" placeholder="Describe what you noticed, understood, or did differently…"></textarea></div>
+    <div class="field"><label>Context (optional)</label><textarea id="d-context" placeholder="The situation, what triggered it…" style="min-height:60px"></textarea></div>
+    <button class="btn-save" style="background:var(--deep-sage)" onclick="saveDiscovery()">Save Discovery</button>
+    <button class="btn-cancel" onclick="closeModal('modal-discovery')">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ══ STATE & STORAGE ══
+  // Uses IndexedDB for reliable mobile storage (localStorage can be cleared by iOS)
+  let db;
+  let state = { compliments: [], discoveries: [], weeklys: [] };
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('growth-booklet', 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('data')) {
+          d.createObjectStore('data', { keyPath: 'key' });
+        }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(); };
+      req.onerror = () => { console.warn('IndexedDB failed, using localStorage'); resolve(); };
+    });
+  }
+
+  async function loadState() {
+    if (db) {
+      try {
+        const tx = db.transaction('data', 'readonly');
+        const store = tx.objectStore('data');
+        const req = store.get('state');
+        return new Promise(resolve => {
+          req.onsuccess = () => {
+            if (req.result) state = req.result.value;
+            resolve();
+          };
+          req.onerror = resolve;
+        });
+      } catch(e) {}
+    }
+    // fallback
+    try {
+      const s = localStorage.getItem('growth-booklet');
+      if (s) state = JSON.parse(s);
+    } catch(e) {}
+  }
+
+  async function saveState() {
+    if (db) {
+      try {
+        const tx = db.transaction('data', 'readwrite');
+        const store = tx.objectStore('data');
+        store.put({ key: 'state', value: state });
+        return;
+      } catch(e) {}
+    }
+    try { localStorage.setItem('growth-booklet', JSON.stringify(state)); } catch(e) {}
+  }
+
+  // ══ TODAY ══
+  const today = new Date().toISOString().split('T')[0];
+
+  // ══ TABS ══
+  let currentTab = 'compliments';
+
+  function switchTab(name, btn) {
+    currentTab = name;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('scroll-area').scrollTop = 0;
+    // FAB only shows on compliments and discoveries
+    document.getElementById('fab').style.display = (name === 'weekly') ? 'none' : 'flex';
+  }
+
+  // ══ FAB & MODALS ══
+  function openModal() {
+    if (currentTab === 'compliments') {
+      document.getElementById('c-date').value = today;
+      document.getElementById('c-from').value = '';
+      document.getElementById('c-text').value = '';
+      openModalById('modal-compliment');
+    } else if (currentTab === 'discoveries') {
+      document.getElementById('d-date').value = today;
+      document.getElementById('d-text').value = '';
+      document.getElementById('d-context').value = '';
+      openModalById('modal-discovery');
+    }
+  }
+
+  function openModalById(id) {
+    const m = document.getElementById(id);
+    m.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(id) {
+    const m = document.getElementById(id);
+    m.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal on overlay tap
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) closeModal(m.id);
+    });
+  });
+
+  // ══ COMPLIMENTS ══
+  async function saveCompliment() {
+    const from = document.getElementById('c-from').value.trim();
+    const date = document.getElementById('c-date').value;
+    const text = document.getElementById('c-text').value.trim();
+    if (!text) { showToast('Please write the compliment first'); return; }
+    state.compliments.unshift({ id: Date.now(), from: from || 'Someone who sees you', date, text });
+    await saveState();
+    renderCompliments();
+    closeModal('modal-compliment');
+    showToast('Compliment saved ✦');
+  }
+
+  async function deleteCompliment(id) {
+    if (!confirm('Remove this compliment?')) return;
+    state.compliments = state.compliments.filter(c => c.id !== id);
+    await saveState();
+    renderCompliments();
+  }
+
+  function renderCompliments() {
+    const list = document.getElementById('compliments-list');
+    const stats = document.getElementById('compliments-stats');
+
+    // Stats bar
+    const total = state.compliments.length;
+    const thisMonth = state.compliments.filter(c => {
+      if (!c.date) return false;
+      const d = new Date(c.date + 'T12:00:00');
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+
+    stats.innerHTML = `
+      <div class="stat-pill">
+        <div class="stat-num" style="color:var(--rose)">${total}</div>
+        <div class="stat-label">Total saved</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" style="color:var(--gold)">${thisMonth}</div>
+        <div class="stat-label">This month</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" style="color:var(--deep-sage)">${state.discoveries.filter(d=>d.type==='win').length}</div>
+        <div class="stat-label">Wins</div>
+      </div>
+    `;
+
+    if (!state.compliments.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">✦</div><div class="empty-text">Your compliments will live here.<br>Tap + to add your first one.</div></div>`;
+      return;
+    }
+
+    list.innerHTML = state.compliments.map(c => `
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(90deg,#E8C4B8,#C9A96E,#9AAF9A)"></div>
+        <button class="card-delete" onclick="deleteCompliment(${c.id})">×</button>
+        <div class="card-from" style="margin-top:8px">From ${esc(c.from)}</div>
+        <div class="card-text">${esc(c.text)}</div>
+        <div class="card-date">${fmtDate(c.date)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ══ DISCOVERIES ══
+  const typeLabels = { insight:'Insight', pattern:'Pattern noticed', trigger:'Trigger identified', win:'Win' };
+  const typeClasses = { insight:'type-insight accent-insight', pattern:'type-pattern accent-pattern', trigger:'type-trigger accent-trigger', win:'type-win accent-win' };
+
+  async function saveDiscovery() {
+    const type = document.getElementById('d-type').value;
+    const date = document.getElementById('d-date').value;
+    const text = document.getElementById('d-text').value.trim();
+    const context = document.getElementById('d-context').value.trim();
+    if (!text) { showToast('Please describe your discovery'); return; }
+    state.discoveries.unshift({ id: Date.now(), type, date, text, context });
+    await saveState();
+    renderDiscoveries();
+    closeModal('modal-discovery');
+    showToast('Discovery recorded ◇');
+  }
+
+  async function deleteDiscovery(id) {
+    if (!confirm('Remove this discovery?')) return;
+    state.discoveries = state.discoveries.filter(d => d.id !== id);
+    await saveState();
+    renderDiscoveries();
+  }
+
+  function renderDiscoveries() {
+    const list = document.getElementById('discoveries-list');
+    if (!state.discoveries.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">◇</div><div class="empty-text">Your discoveries will be recorded here.<br>Every noticing matters.</div></div>`;
+      return;
+    }
+    list.innerHTML = state.discoveries.map(d => {
+      const cls = typeClasses[d.type] || 'type-insight accent-insight';
+      const [tagCls, accentCls] = cls.split(' ');
+      return `
+        <div class="card">
+          <div class="card-accent ${accentCls}"></div>
+          <button class="card-delete" onclick="deleteDiscovery(${d.id})">×</button>
+          <div class="card-tag ${tagCls}" style="margin-top:8px">${typeLabels[d.type]}</div>
+          <div class="card-text">${esc(d.text)}</div>
+          ${d.context ? `<div class="card-text" style="font-size:0.95rem;color:var(--soft-ink);margin-top:4px;font-weight:400">${esc(d.context)}</div>` : ''}
+          <div class="card-date">${fmtDate(d.date)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ══ WEEKLY ══
+  const wLabels = ['w1','w2','w3','w4','w5'];
+  const wQuestions = [
+    'What triggered a pattern',
+    'When I caught it',
+    'What I did differently',
+    'Whose voice I heard',
+    'What I want to try next week'
+  ];
+
+  async function saveWeekly() {
+    const answers = wLabels.map((f,i) => ({
+      label: wQuestions[i],
+      text: document.getElementById(f).value.trim()
+    })).filter(a => a.text);
+    if (!answers.length) { showToast('Fill in at least one field'); return; }
+    state.weeklys.unshift({ id: Date.now(), date: today, answers });
+    await saveState();
+    renderWeeklyHistory();
+    wLabels.forEach(f => document.getElementById(f).value = '');
+    showToast('Check-in saved ✦');
+    document.getElementById('scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderWeeklyHistory() {
+    const container = document.getElementById('weekly-history');
+    if (!state.weeklys.length) { container.innerHTML = ''; return; }
+    container.innerHTML = `
+      <div class="section-sub" style="margin-bottom:10px">Past check-ins</div>
+      ${state.weeklys.map(w => `
+        <div class="weekly-history-card">
+          <div class="weekly-history-date">◎ ${fmtDate(w.date)}</div>
+          ${w.answers.map(a => `
+            <div class="weekly-history-q">
+              <div class="weekly-history-q-label">${a.label}</div>
+              <div class="weekly-history-q-text">${esc(a.text)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    `;
+  }
+
+  // ══ INSTALL BANNER ══
+  function dismissInstall() {
+    document.getElementById('install-banner').classList.add('hidden');
+    try { localStorage.setItem('install-dismissed', '1'); } catch(e) {}
+  }
+
+  // Hide if already dismissed or on Android (where prompt is different)
+  try {
+    if (localStorage.getItem('install-dismissed') ||
+        window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('install-banner').classList.add('hidden');
+    }
+  } catch(e) {}
+
+  // ══ UTILS ══
+  function fmtDate(d) {
+    if (!d) return '';
+    try {
+      return new Date(d + 'T12:00:00').toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' });
+    } catch(e) { return d; }
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+      .replace(/\n/g,'<br>');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // ══ INIT ══
+  (async () => {
+    await openDB();
+    await loadState();
+    renderCompliments();
+    renderDiscoveries();
+    renderWeeklyHistory();
+  })();
+</script>
+</body>
+</html>
