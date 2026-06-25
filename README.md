@@ -22,3 +22,10 @@ On mobile, open in Chrome or Safari and use
 ## Tech
 Single file HTML app using IndexedDB for local storage.
 No frameworks, no dependencies, no internet required.
+
+<img width="321" height="608" alt="Screenshot 2026-06-25 192600" src="https://github.com/user-attachments/assets/64d15764-151d-4435-99fa-376fa89a512c" />
+
+<img width="323" height="608" alt="Screenshot 2026-06-25 192608" src="https://github.com/user-attachments/assets/6765874f-9af4-4622-8d2e-682abeb4015b" />
+
+<img width="323" height="608" alt="Screenshot 2026-06-25 192616" src="https://github.com/user-attachments/assets/32a335a7-2326-4fb2-88c9-aa71022524e8" />
+
