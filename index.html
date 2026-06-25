@@ -937,6 +937,78 @@
     setTimeout(() => t.classList.remove('show'), 2400);
   }
 
+
+  // ══ SETTINGS / EXPORT / IMPORT ══
+  function toggleSettings() {
+    const sp = document.getElementById('settings-panel');
+    const ip = document.getElementById('import-panel');
+    if (ip) ip.style.display = 'none';
+    sp.style.display = (sp.style.display === 'none' || sp.style.display === '') ? 'block' : 'none';
+  }
+
+  function showImport() {
+    document.getElementById('settings-panel').style.display = 'none';
+    document.getElementById('import-panel').style.display = 'block';
+  }
+
+  function hideImport() {
+    document.getElementById('import-panel').style.display = 'none';
+    document.getElementById('import-text').value = '';
+  }
+
+  async function exportData() {
+    const dataStr = JSON.stringify(state);
+    try {
+      await navigator.clipboard.writeText(dataStr);
+      showToast('Data copied to clipboard ✦');
+    } catch(e) {
+      const ta = document.getElementById('import-text');
+      document.getElementById('settings-panel').style.display = 'none';
+      document.getElementById('import-panel').style.display = 'block';
+      ta.value = dataStr;
+      ta.select();
+      showToast('Select all text above and copy it');
+    }
+  }
+
+  async function importData() {
+    const raw = document.getElementById('import-text').value.trim();
+    if (!raw) { showToast('Please paste your exported data first'); return; }
+    try {
+      const imported = JSON.parse(raw);
+      if (!imported.compliments && !imported.discoveries && !imported.weeklys) {
+        showToast("That doesn't look like valid data"); return;
+      }
+      const existingIds = new Set([
+        ...state.compliments.map(c => c.id),
+        ...state.discoveries.map(d => d.id),
+        ...state.weeklys.map(w => w.id)
+      ]);
+      let added = 0;
+      (imported.compliments || []).forEach(c => {
+        if (!existingIds.has(c.id)) { state.compliments.push(c); added++; }
+      });
+      (imported.discoveries || []).forEach(d => {
+        if (!existingIds.has(d.id)) { state.discoveries.push(d); added++; }
+      });
+      (imported.weeklys || []).forEach(w => {
+        if (!existingIds.has(w.id)) { state.weeklys.push(w); added++; }
+      });
+      state.compliments.sort((a,b) => b.id - a.id);
+      state.discoveries.sort((a,b) => b.id - a.id);
+      state.weeklys.sort((a,b) => b.id - a.id);
+      await saveState();
+      renderCompliments();
+      renderDiscoveries();
+      renderWeeklyHistory();
+      hideImport();
+      document.getElementById('settings-panel').style.display = 'none';
+      showToast(added + ' entries imported successfully ✦');
+    } catch(e) {
+      showToast('Something went wrong — please try again');
+    }
+  }
+
   // ══ INIT ══
   (async () => {
     await openDB();
